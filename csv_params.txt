@@ -1,0 +1,18 @@
+/work/pi_mrobson_smith_edu/mth364/NF1_kma.csv
+Summary: reversible conditoins, middle value of I chosen, and k_mA is variable that changes.
+Doesn't make too much sense to look at it in context of hysteresis since k_mA values don't change (not like I that 
+can be decreased)
+k_mA changes:
+I = 0.5 #don't know good value of I to go with..
+k_I = 0.1867 
+k_mI = 0.7801
+k_A = 0.9833 
+k_B = 0.8252
+k_mB = 0.5157
+k_1 = 0.3132
+k_m1= 0.5770 
+k_2 =0.3700 #REVERSIBLE
+k_m2 = 0.1090 
+delta_1 = 0.0697 
+delta_2 = 0.0226
+
