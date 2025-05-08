@@ -1,5 +1,5 @@
 #get data needed for bifurcation of $NF_1 S^{B+}_{A+}$ 
-#in terms of B* from different values of I
+#in terms of B* from different values of k_mA
 
 from gekko import GEKKO
 import numpy as np
@@ -9,7 +9,7 @@ from torch import tensor
 #csv sholuld have:
 #I, A, B, trace, determinant, string_of_classification 
 
-with open("NF1_kma.csv", "w") as f:
+with open("NF1_kma_irrev.csv", "w") as f:
     f.write("k_ma,A,B,trace,determinant,string_of_classification,stable\n")
 f.close() 
 
@@ -31,11 +31,11 @@ def f_w_params(A, B,
         (( k_B * B * (1- B)) / (k_mB+ 1 - B))+((k_1*A*(1-B)) / (k_m1 + 1 - B) )- (delta_2 * B)
     )
     
-#iterate between values of I from 0 to 1 with step 0.01
+#iterate between values of kma from 0 to 1 with step 0.01
 kma_values =np.arange(0, 1.0, 0.01)
 
 for kma in kma_values:
-    #unique_solutions tracks solutions for a given value of I
+    #unique_solutions tracks solutions for a given value of kma 
     unique_solutions = [] 
     #gekko does grid search over solutions (9 x 9 ics)
     for i in values:
@@ -48,7 +48,7 @@ for kma in kma_values:
             
             #all other params that will be held constant
             #redundant, but need to convert to gekko params for each iteration...doesn't work otherwise 
-            I = 0.5 #don't know good value of I to go with..
+            I = 0.5 #don't know good value of kma to go with..
             k_I = 0.1867 
             k_mI = 0.7801
             k_A = 0.9833 
@@ -56,8 +56,8 @@ for kma in kma_values:
             k_mB = 0.5157
             k_1 = 0.3132
             k_m1= 0.5770 
-            k_2 =0.3700 #REVERSIBLE
-            #k_2 = 0.2636 # is IRREVERSIBLE
+           # k_2 =0.3700 #REVERSIBLE
+            k_2 = 0.2636 # is IRREVERSIBLE
             k_m2 = 0.1090 
             delta_1 = 0.0697 
             delta_2 = 0.0226
@@ -124,7 +124,7 @@ for kma in kma_values:
     k_m2 = tensor(k_m2)
     delta_1 = tensor(delta_1)
     delta_2 = tensor(delta_2)
-    #now that we have the solutions for the vlaue of I, compute stabilities of the solutions
+    #now that we have the solutions for the vlaue of kma, compute stabilities of the solutions
     #iterate over solution
     
     for solution in unique_solutions:
@@ -141,24 +141,24 @@ for kma in kma_values:
         trace = np.trace(J)
         classification = ""
         stable = False
-        #if trace squared is less than 4 times the determinant
-        if trace**2 < 4*det:
-            classification = "stable spiral node sink"
-            stable = True
-        elif det > 0 and trace < 0:
-            classification = "stable node sink" 
-            stable = True
-        elif det < 0:
+        #classify node
+        if det < 0:
             classification = "unstable saddle node"
             stable = False
-        elif trace**2 > 4*det and trace > 0:
+        elif trace > 0 and trace**2 < 4*det:
+            classification = "unstable spiral node source"
+            stable = False
+        elif trace > 0 and trace**2  > 4*det:
             classification = "unstable node source"
-            stable = False
+            stable = False   
+        elif trace < 0 and trace**2 > 4*det:
+            classification = "stable spiral node sink"
+            stable = True
         else:
-            classification = "unstable spiral source"
-            stable = False
+            classification = "stable node sink"
+            stable = True
         #write to csv
-        with open("NF1_kma.csv", "a") as f:
+        with open("NF1_kma_irrev.csv", "a") as f:
             #cnovert kma to number
             kma = float(k_mA)
             #get trace
